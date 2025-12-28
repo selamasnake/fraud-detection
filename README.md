@@ -18,6 +18,8 @@ This project develops  machine learning models to detect fraud in e-commerce and
 
     - `feature_engineering.py` — implementation of the FeatureEngineer class.
 
+    - `modeling.py` - model building and training module
+
 - .github/workflows/unittests.yml — CI workflow for automated testing.
 
 #### How to Use
