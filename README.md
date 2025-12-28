@@ -1,5 +1,9 @@
 ##  fraud-detection 
-This project develops  machine learning models to detect fraud in e-commerce and banking transactions. By integrating geolocation data and engineering behavioral features, it identifies suspicious patterns while balancing the trade-off between security and user experience. To handle extreme class imbalance, the project utilizes SMOTE resampling and explainability tools like SHAP to provide accurate, transparent, and actionable fraud insights.
+This project develops machine learning models to detect fraudulent transactions in both e-commerce and banking domains. By leveraging geolocation data, behavioral analytics, and engineered transaction features, it identifies suspicious activity while carefully balancing security and user experience.
+
+To address the extreme class imbalance inherent in fraud datasets, the project incorporates advanced resampling techniques like SMOTE. Model interpretability is a key focus, with explainability tools such as SHAP enabling transparent, actionable insights.
+
+The overall goal is to provide accurate, reliable, and explainable fraud detection, helping businesses reduce financial losses, improve customer trust, and maintain operational efficiency in real-time transaction monitoring.
 
 #### Project Structure
 - `data/` — contains raw and processed datasets (ignored in git).
@@ -11,6 +15,10 @@ This project develops  machine learning models to detect fraud in e-commerce and
     - `eda-creditcard.ipynb `— analysis of bank transaction data.
 
     - `feature_engineering.ipynb` — time-based features, velocity metrics, and SMOTE implementation.
+
+    - `modeling-fraud-data.ipynb`: Model training, evaluation, and selection for fraud data
+
+    - `modeling-creditcard.ipynb`: Model training, evaluation, and selection for credit card data
 
 - `src/` — Python modules for core logic:
 
