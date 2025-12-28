@@ -20,3 +20,7 @@ jobs:
 
       - name: Check Python version
         run: python --version
+
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings -q
