@@ -12,3 +12,4 @@ imbalanced-learn>=0.12.0
 # Utilities
 ipaddress
 jupyter
+pytest
