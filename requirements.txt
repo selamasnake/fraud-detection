@@ -13,3 +13,5 @@ imbalanced-learn>=0.12.0
 ipaddress
 jupyter
 pytest
+joblib
+shap

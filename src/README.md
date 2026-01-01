@@ -8,4 +8,5 @@ This folder contains Python modules used for preprocessing, feature engineering,
 * `feature_engineering.py`: Generate, transform, scale, and encode features for modeling.
 * `geolocation.py`: Handle and process geographic or IP-based location data.
 * `modeling.py`: Split datasets, train and evaluate fraud detection models.
+* `interpretablility.py`: SHAP explainability for best model.
 

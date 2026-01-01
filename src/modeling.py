@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.base import clone
+import joblib
 
 from sklearn.model_selection import (
     train_test_split,
@@ -147,3 +148,9 @@ class Modeling:
             by="AUC-PR",
             ascending=False
         ).reset_index(drop=True)
+    def save_model(self, model_key, path):
+        """Save a trained model pipeline to disk."""
+        if model_key not in self.models:
+            raise ValueError(f"No model found with key '{model_key}'")
+        joblib.dump(self.models[model_key], path)
+
