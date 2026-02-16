@@ -5,7 +5,12 @@ import pytest
 import pandas as pd
 import numpy as np
 from tempfile import NamedTemporaryFile
-from data_processing import DataCleaner, EDAProcessor
+from data_processing import DataCleaner, EDAProcessor, CleaningConfig
+
+import warnings
+warnings.simplefilter("ignore", FutureWarning)
+warnings.simplefilter("ignore", DeprecationWarning)
+
 
 # ----------------------
 # Fixtures
@@ -22,6 +27,18 @@ def sample_df():
 # ----------------------
 # DataCleaner Tests
 # ----------------------
+
+
+
+def test_handle_missing_with_config(sample_df):
+    config = CleaningConfig(numeric_fill_strategy="median", categorical_fill_strategy="mode")
+    cleaner = DataCleaner(sample_df, config=config)
+    imputed_df = cleaner.handle_missing_values()
+    # Assert numeric/categorical filled correctly
+    assert cleaner.df["Amount"].isna().sum() == 0
+    assert cleaner.df["Category"].isna().sum() == 0
+
+
 def test_missing_values_summary(sample_df):
     cleaner = DataCleaner(sample_df)
     missing = cleaner.missing_values_summary()

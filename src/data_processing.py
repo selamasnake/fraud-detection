@@ -121,7 +121,7 @@ class DataCleaner:
         })
         return summary
 
-    def handle_missing_values(self) -> dict:
+    def handle_missing_values(self) -> pd.DataFrame:
         """
         Impute missing values: median for numeric, mode for categorical.
 
@@ -134,17 +134,18 @@ class DataCleaner:
         for col in self.df.select_dtypes(include=np.number).columns:
             num_missing = self.df[col].isna().sum()
             if num_missing > 0:
-                self.df[col].fillna(self.df[col].median(), inplace=True)
+                self.df[col] = self.df[col].fillna(self.df[col].median())
             imputed_summary[col] = num_missing
 
         # Categorical columns
         for col in self.df.select_dtypes(include="object").columns:
             num_missing = self.df[col].isna().sum()
             if num_missing > 0:
-                self.df[col].fillna(self.df[col].mode()[0], inplace=True)
+                self.df[col] = self.df[col].fillna(self.df[col].mode()[0])
             imputed_summary[col] = num_missing
 
         return pd.DataFrame({"imputed_values_per_column": imputed_summary})
+
 
     def remove_duplicates(self) -> dict:
         """
