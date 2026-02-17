@@ -81,6 +81,8 @@ CREDIT_CONFIG = DatasetConfig(
 
 # --- UTILITIES ---
 
+# --- UTILITIES ---
+
 def get_model_components(model: Any) -> Tuple[Any, Optional[Any]]:
     """
     Extracts the classifier and optional preprocessing scaler from a model or pipeline.
@@ -147,6 +149,21 @@ def calculate_friction_risk(precision_str: str) -> float:
     """
     return 100.0 - float(precision_str.strip('%'))
 
+def save_report_figure(fig: plt.Figure, report_name: str, dataset_name: str) -> None:
+    """
+    Saves a matplotlib figure to the local reports directory for auditing.
+
+    Args:
+        fig (plt.Figure): Matplotlib figure object to save.
+        report_name (str): Filename for the report (e.g., 'global_shap_summary').
+        dataset_name (str): Folder name based on the dataset (e.g., 'ecommerce').
+    """
+    clean_name = dataset_name.lower().replace(" ", "_")
+    report_path = BASE_DIR / "reports" / "figures" / clean_name
+    report_path.mkdir(parents=True, exist_ok=True)
+    
+    fig.savefig(report_path / f"{report_name}.png", dpi=300, bbox_inches='tight')
+
 @st.cache_resource
 def load_data_suite(config: DatasetConfig) -> Tuple[Any, pd.DataFrame, List[str]]:
     """
@@ -159,10 +176,7 @@ def load_data_suite(config: DatasetConfig) -> Tuple[Any, pd.DataFrame, List[str]
         config (DatasetConfig): A dataclass containing file paths and column metadata.
 
     Returns:
-        Tuple[Any, pd.DataFrame, List[str]]: A tuple containing:
-            - The loaded model object.
-            - The loaded pandas DataFrame.
-            - A list of feature column names used by the model.
+        Tuple[Any, pd.DataFrame, List[str]]: A tuple containing the model, dataframe, and features.
     """
     model = joblib.load(BASE_DIR / "models" / config.model_file)
     df = pd.read_csv(BASE_DIR / "data" / "processed" / config.data_file)
@@ -170,7 +184,6 @@ def load_data_suite(config: DatasetConfig) -> Tuple[Any, pd.DataFrame, List[str]
     if config.id_col == "index" and "index" not in df.columns:
         df = df.reset_index()
         
-    # Attempt to extract feature names directly from the model object
     feature_cols = list(model.feature_names_in_) if hasattr(model, 'feature_names_in_') else \
                    [c for c in df.columns if c not in config.drop_cols and c != config.id_col]
                    
