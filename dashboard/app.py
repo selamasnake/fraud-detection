@@ -80,14 +80,50 @@ CREDIT_CONFIG = DatasetConfig(
 )
 
 # --- UTILITIES ---
+
 def get_model_components(model: Any) -> Tuple[Any, Optional[Any]]:
+    """
+    Extracts the classifier and optional preprocessing scaler from a model or pipeline.
+    
+    This function checks if the provided model is a Scikit-learn Pipeline. If so, it 
+    iterates through the steps to find a transformer (scaler) and identifies the 
+    final estimator (classifier).
+
+    Args:
+        model (Any): The model object, potentially a sklearn.pipeline.Pipeline.
+
+    Returns:
+        Tuple[Any, Optional[Any]]: A tuple containing (classifier, scaler). 
+            The scaler is None if no transformer is found or if the model isn't a pipeline.
+    """
     if hasattr(model, 'steps'):
         scaler = next((s for n, s in model.steps if hasattr(s, "transform") and n != 'model'), None)
         classifier = model.steps[-1][1]
         return classifier, scaler
     return model, None
 
-def prepare_shap_data(model: Any, X_raw: pd.DataFrame, bg_raw: pd.DataFrame, feature_cols: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def prepare_shap_data(
+    model: Any, 
+    X_raw: pd.DataFrame, 
+    bg_raw: pd.DataFrame, 
+    feature_cols: List[str]
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Prepares raw data for SHAP explanation by applying necessary scaling transformations.
+    
+    SHAP values must be calculated on the same feature scale the model was trained on. 
+    This utility extracts the scaler from the model pipeline and transforms both the 
+    target instance and the background distribution.
+
+    Args:
+        model (Any): The trained model or pipeline.
+        X_raw (pd.DataFrame): The raw input features to be explained.
+        bg_raw (pd.DataFrame): The raw background data used for SHAP reference.
+        feature_cols (List[str]): List of column names to maintain in the output DataFrames.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: Transformed (X, background) DataFrames ready for SHAP.
+    """
     classifier, scaler = get_model_components(model)
     if scaler:
         X_trans = pd.DataFrame(scaler.transform(X_raw), columns=feature_cols)
@@ -96,16 +132,48 @@ def prepare_shap_data(model: Any, X_raw: pd.DataFrame, bg_raw: pd.DataFrame, fea
     return X_raw, bg_raw
 
 def calculate_friction_risk(precision_str: str) -> float:
+    """
+    Calculates the percentage risk of customer friction based on model precision.
+    
+    Friction risk is defined as the inverse of precision (the False Positive Rate). 
+    A higher friction risk implies a higher likelihood of legitimate transactions 
+    being incorrectly flagged as fraud.
+
+    Args:
+        precision_str (str): The precision percentage as a string (e.g., "99.87%").
+
+    Returns:
+        float: The calculated friction risk percentage.
+    """
     return 100.0 - float(precision_str.strip('%'))
 
 @st.cache_resource
 def load_data_suite(config: DatasetConfig) -> Tuple[Any, pd.DataFrame, List[str]]:
+    """
+    Loads the model, dataset, and feature definitions for a specific fraud context.
+    
+    Uses Streamlit's cache_resource to ensure heavy I/O operations (loading pickles 
+    and large CSVs) only happen once per session or configuration change.
+
+    Args:
+        config (DatasetConfig): A dataclass containing file paths and column metadata.
+
+    Returns:
+        Tuple[Any, pd.DataFrame, List[str]]: A tuple containing:
+            - The loaded model object.
+            - The loaded pandas DataFrame.
+            - A list of feature column names used by the model.
+    """
     model = joblib.load(BASE_DIR / "models" / config.model_file)
     df = pd.read_csv(BASE_DIR / "data" / "processed" / config.data_file)
+    
     if config.id_col == "index" and "index" not in df.columns:
         df = df.reset_index()
+        
+    # Attempt to extract feature names directly from the model object
     feature_cols = list(model.feature_names_in_) if hasattr(model, 'feature_names_in_') else \
                    [c for c in df.columns if c not in config.drop_cols and c != config.id_col]
+                   
     return model, df, feature_cols
 
 # --- MAIN UI EXECUTION ---
