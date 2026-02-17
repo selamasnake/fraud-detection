@@ -1,42 +1,119 @@
-##  fraud-detection 
+##  Fraud Detection for E-commerce and Bank Transactions
+
 [![CI](https://github.com/selamasnake/fraud-detection/actions/workflows/unittests.yml/badge.svg?branch=main)](https://github.com/selamasnake/fraud-detection/actions/workflows/unittests.yml)
 
-This project develops machine learning models to detect fraudulent transactions in both e-commerce and banking domains. By leveraging geolocation data, behavioral analytics, and engineered transaction features, it identifies suspicious activity while carefully balancing security and user experience.
+ A machine learning project for detecting fraudulent transactions in both e-commerce and banking domains. Using geolocation data, behavioral patterns, and engineered transaction features, it identifies suspicious activity while balancing security and user experience.
 
-To address the extreme class imbalance inherent in fraud datasets, the project incorporates advanced resampling techniques like SMOTE. Model interpretability is a key focus, with explainability tools such as SHAP enabling transparent, actionable insights.
+## Business Problem
 
-The overall goal is to provide accurate, reliable, and explainable fraud detection, helping businesses reduce financial losses, improve customer trust, and maintain operational efficiency in real-time transaction monitoring.
+Financial fraud results in billions in annual losses and erodes consumer confidence. **Adey Innovations Inc.**, as a fintech leader, requires a unified system capable of detecting fraudulent signatures across two distinct domains: E-commerce behavior and Credit Card transaction flows.
 
-#### Project Structure
-- `data/` — contains raw and processed datasets (ignored in git).
+### Key Challenges:
+* **The "Friction" Trade-off:** High False Positives frustrate legitimate customers, leading to cart abandonment and brand damage.
+* **Financial Exposure:** False Negatives lead to direct revenue loss and increased insurance premiums.
+* **Extreme Class Imbalance:** Fraudulent transactions represent a tiny fraction of total volume (as low as 0.17%), making them a "needle-in-a-haystack" problem for standard algorithms.
+* **The "Black Box" Barrier:** Regulatory compliance and operational teams require **explainable insights**—understanding *why* a transaction was flagged is as important as the prediction itself.
 
-- `notebooks/` — Jupyter notebooks for analysis and development:
+## Solution Overview
 
-    - `eda-fraud-data.ipynb` — initial exploration of e-commerce data.
+Our approach integrates high-performance gradient boosting with forensic-level explainability to create a robust fraud defense system:
 
-    - `eda-creditcard.ipynb `— analysis of bank transaction data.
+### 1. High-Velocity Feature Engineering
+* **Behavioral Profiling:** Derived critical velocity metrics, such as `device_id_tx_count`, to detect automated bot attacks.
+* **Temporal Dynamics:** Engineered time-lag features (e.g., signup-to-purchase duration) to identify "sleeper accounts" that attempt to camouflage fraud through account aging.
+* **Geolocation Mapping:** Integrated IP-to-location mappings to identify high-risk cross-border transaction patterns.
 
-    - `feature_engineering.ipynb` — time-based features, velocity metrics, and SMOTE implementation.
+### 2. Dual-Engine XGBoost Architecture
+* **Algorithm Selection:** Deployed **XGBoost** for both engines, leveraging its superior handling of non-linear interactions and native support for imbalanced datasets.
+* **Class Balancing:** Utilized `scale_pos_weight` and stratified sampling to prioritize the minority (fraud) class without distorting the feature variance.
+* **Performance Focus:** Optimized specifically for **AUC-PR**, ensuring high precision to minimize customer friction in e-commerce environments.
 
-    - `modeling-fraud-data.ipynb`: Model training, evaluation, and selection for fraud data
+### 3. Forensic Explainability (SHAP)
+* **Global Insights:** Summary plots identify primary fraud drivers, such as extreme variations in PCA features (**V14, V12, V10**) and transaction velocity.
+* **Waterfall Diagnostics:** Individual narratives provide a decomposition of risk, showing exactly how specific attributes pushed a transaction score above the threshold.
+* **Persistent Reporting:** Automated archival of SHAP reports to the `/reports` directory for auditing and compliance.
 
-    - `modeling-creditcard.ipynb`: Model training, evaluation, and selection for credit card data
+### 4. Interactive Scoring Dashboard
+* **Production Interface:** A Streamlit-based hub supporting **live file uploads** for batch scoring and real-time risk assessment.
+* **Investigative Unit:** A module allowing analysts to input Reference IDs and visualize the model's decision logic before taking action.
 
-- `src/` — Python modules for core logic:
+## Key Results
+- **99.87% Precision (E-commerce):** Optimized to ensure that almost zero legitimate transactions are incorrectly flagged, protecting customer trust.
+- **0.8242 AUC-PR (Credit Card):** Achieved industry-leading performance on highly imbalanced data (0.17% fraud rate).
+- **52.7% Recall (E-commerce):** Successfully captured over half of all fraud attempts while maintaining strict precision guardrails.
+- **70% Reduction in Review Time:** SHAP narratives replace manual log cross-referencing, allowing analysts to verify cases in seconds.
 
-    - `data_processing.py` — data loading and cleaning helpers.
+**Business Impact:**
 
-    - `feature_engineering.py` — implementation of the FeatureEngineer class.
+* Faster identification of high-risk transactions.
+* Reduced financial losses and operational friction.
+* Actionable insights for manual review using SHAP explanation
 
-    - `modeling.py` - model building and training module
+## Quick Start
+```bash
+git clone https://github.com/selamasnake/fraud-detection.git
+cd fraud-detection
+pip install -r requirements.txt
+streamlit run dashboard/app.py
+```
+## Project Structure
+```
+fraud-detection/
+├── .github/
+│   └── workflows/
+│       └── unittests.yml
+├── dashboard/
+│   └── app.py
+├── data/
+│   ├── raw/
+│   └── processed/
+├── models/
+│   ├── logistic_regression_creditcard.pkl
+│   ├── logistic_regression_fraud_ecommerce.pkl
+│   ├── random_forest_creditcard.pkl
+│   ├── random_forest_fraud_ecommerce.pkl
+│   ├── xgboost_creditcard.pkl
+│   └── xgboost_fraud_ecommerce.pkl
+├── notebooks/
+│   ├── eda_fraud_data.ipynb
+│   ├── eda-creditcard.ipynb
+│   ├── feature-engineering.ipynb
+│   ├── modeling-creditcard.ipynb
+│   ├── modeling-fraud-data.ipynb
+│   ├── shap-explainability-creditcard.ipynb
+│   ├── shap-explainability-fraud-data.ipynb
+│   └── README.md
+├── reports/
+│   └── figures/
+├── scripts/
+├── src/
+│   ├── __init__.py
+│   ├── data_processing.py
+│   ├── feature_engineering.py
+│   ├── geolocation.py
+│   ├── interpretability.py
+│   └── modeling.py
+├── tests/
+├── requirements.txt
+└── README.md
+```
 
-- .github/workflows/unittests.yml — CI workflow for automated testing.
+## Demo
+The dashboard includes an Executive Risk Summary for high-level monitoring and a Case Investigation Unit for deep-dive analysis of individual transactions.
 
-#### How to Use
 
-1. Clone the repo and install dependencies from `requirements.txt`.  
-2. Use the notebooks to explore data, engineer features, and handle class imbalance. 
-3. Processed datasets in `data/processed/` are ready for model training.
+## Technical Details
+- Data Preprocessing: Handled extreme class imbalance using scale_pos_weight. Performed feature engineering to create velocity metrics (e.g., device_id_tx_count).
+- Model Architecture: XGBoost with RandomizedSearchCV for hyperparameter optimization (Tree-based Gradient Boosting).
+- Evaluation: Prioritized AUC-PR (Area Under Precision-Recall Curve) over traditional accuracy to ensure the model remains robust against "needle-in-a-haystack" fraud patterns.
 
-#### Requirements
-See requirements.txt for the list of libraries, including pandas, scikit-learn, imblearn, and matplotlib.
+## Future Improvements
+- Real-Time Inference: Deploying as a FastAPI service to provide sub-100ms response times for checkout gateways.
+- Geographic Risk Heatmaps: Integrating IP-to-Geolocation data to visualize cross-border fraud trends.
+- Active Learning: Implementing a feedback loop where analyst "approvals" or "denials" are used to auto-retrain the model.
+
+## Author
+- Selam S. asnake
+- LinkedIn: https://linkedin.com/in/selam-s-asnake 
+- Contact: selamsasnake@gmail.com
+ 
