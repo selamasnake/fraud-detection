@@ -1,4 +1,6 @@
 ##  fraud-detection 
+[![CI](https://github.com/selamasnake/fraud-detection/actions/workflows/unittests.yml/badge.svg?branch=main)](https://github.com/selamasnake/fraud-detection/actions/workflows/unittests.yml)
+
 This project develops machine learning models to detect fraudulent transactions in both e-commerce and banking domains. By leveraging geolocation data, behavioral analytics, and engineered transaction features, it identifies suspicious activity while carefully balancing security and user experience.
 
 To address the extreme class imbalance inherent in fraud datasets, the project incorporates advanced resampling techniques like SMOTE. Model interpretability is a key focus, with explainability tools such as SHAP enabling transparent, actionable insights.
