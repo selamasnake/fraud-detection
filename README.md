@@ -37,6 +37,9 @@ Our approach integrates high-performance gradient boosting with forensic-level e
 * **Production Interface:** A Streamlit-based hub supporting **live file uploads** for batch scoring and real-time risk assessment.
 * **Investigative Unit:** A module allowing analysts to input Reference IDs and visualize the model's decision logic before taking action.
 
+![Fraud Risk Suite](https://github.com/user-attachments/assets/086d5721-91ad-485f-9ce7-3720b529967a)
+
+
 ## Key Results
 - **99.87% Precision (E-commerce):** Optimized to ensure that almost zero legitimate transactions are incorrectly flagged, protecting customer trust.
 - **0.8242 AUC-PR (Credit Card):** Achieved industry-leading performance on highly imbalanced data (0.17% fraud rate).
